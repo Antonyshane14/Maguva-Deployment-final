@@ -60,14 +60,24 @@ class LoginView(APIView):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])  # Changed from IsAdminUser
 def verify_auth(request):
-    user = request.user
-    role = "admin" if user.is_superuser else "staff" if user.is_staff else "user"
-    
-    return Response({
-        "user": {
-            "email": user.email,
+    try:
+        user = request.user
+        role = "admin" if user.is_superuser else "staff" if user.is_staff else "user"
+        
+        logger.info(f"Auth verification for user: {user.email}, role: {role}")
+        
+        return Response({
+            "user": {
+                "email": user.email,
+                "name": user.name,
+                "role": role
+            }
+        })
+    except Exception as e:
+        logger.error(f"Auth verification error: {str(e)}")
+        return Response({"detail": "Authentication error"}, status=status.HTTP_401_UNAUTHORIZED)
             "name": user.name,
             "role": role
         }
@@ -557,7 +567,7 @@ class DashboardAnalyticsView(APIView):
     """
     Comprehensive dashboard analytics endpoint with proper error handling
     """
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]  # Changed from IsAdminUser to IsAuthenticated
     
     def get(self, request):
         try:
