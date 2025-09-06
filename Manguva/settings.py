@@ -27,10 +27,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-m2e2$tm2z5pqyrhgv$k0_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+# For debugging production issues temporarily
+LOGGING_LEVEL = 'DEBUG' if DEBUG else 'INFO'
+
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '.railway.app',
+    '.up.railway.app',  # Railway's new domain format
     os.environ.get('ALLOWED_HOST', ''),
 ]
 
@@ -69,6 +73,27 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Allow all origins in debug mode
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
