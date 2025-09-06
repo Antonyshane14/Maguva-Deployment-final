@@ -138,21 +138,34 @@ AUTHENTICATION_BACKENDS = [
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use Railway's PostgreSQL in production, fallback to local for development
-if os.environ.get('DATABASE_URL'):
+# Check for Railway environment variables first
+if os.environ.get('PGHOST') and os.environ.get('PGDATABASE'):
+    # Railway PostgreSQL configuration
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('PGDATABASE'),
+            'USER': os.environ.get('PGUSER'),
+            'PASSWORD': os.environ.get('PGPASSWORD'),
+            'HOST': os.environ.get('PGHOST'),
+            'PORT': os.environ.get('PGPORT', '5432'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
+    }
+elif os.environ.get('DATABASE_URL'):
+    # Fallback to DATABASE_URL
     import dj_database_url
     DATABASES = {
         'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
 else:
+    # Local development with SQLite
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('PGDATABASE', 'maguva_db'),
-            'USER': os.environ.get('PGUSER', 'postgres'),
-            'PASSWORD': os.environ.get('PGPASSWORD', 'SdhlDiptumAUnVuwNzpJTKWYYYdLfUZz'),
-            'HOST': os.environ.get('PGHOST', 'localhost'),
-            'PORT': os.environ.get('PGPORT', '5432'),
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
