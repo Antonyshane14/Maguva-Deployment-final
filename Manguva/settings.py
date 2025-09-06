@@ -31,6 +31,9 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 LOGGING_LEVEL = 'DEBUG' if DEBUG else 'INFO'
 
 ALLOWED_HOSTS = [
+    'web-production-c4652.up.railway.app',
+    'inventory-managment-pz3afq9eq-anthony-olevesters-projects.vercel.app',
+    'inventory-managment-rosy.vercel.app',
     'localhost',
     '127.0.0.1',
     '.railway.app',
@@ -68,12 +71,13 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "https://inventory-managment-rosy.vercel.app",
+    "https://inventory-managment-pz3afq9eq-anthony-olevesters-projects.vercel.app",
     "http://localhost:3000",
     "https://localhost:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Allow all origins in debug mode
+CORS_ALLOW_ALL_ORIGINS = True  # Temporarily allow all origins for debugging
 CORS_ALLOWED_HEADERS = [
     'accept',
     'accept-encoding',
@@ -124,6 +128,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Manguva.wsgi.application'
 AUTH_USER_MODEL = 'admin_app.MaguvaUsers'
+
+# Authentication backends for email-based login
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 
 # Database

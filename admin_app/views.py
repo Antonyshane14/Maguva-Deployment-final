@@ -24,31 +24,39 @@ logger = logging.getLogger(__name__)
 class LoginView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
+        try:
+            email = request.data.get('email')
+            password = request.data.get('password')
+            
+            logger.info(f"Login attempt for email: {email}")
 
-        user = authenticate(request, email=email, password=password)
-        if not user:
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            user = authenticate(request, email=email, password=password)
+            if not user:
+                logger.warning(f"Authentication failed for email: {email}")
+                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        access_token = AccessToken.for_user(user)
-        access_token.set_exp(lifetime=timedelta(days=1)) 
+            access_token = AccessToken.for_user(user)
+            access_token.set_exp(lifetime=timedelta(days=1)) 
 
-        if user.is_superuser:
-            role = "admin"
-        elif user.is_staff:
-            role = "staff"
-        else:
-            role = "user"
+            if user.is_superuser:
+                role = "admin"
+            elif user.is_staff:
+                role = "staff"
+            else:
+                role = "user"
 
-        return Response({
-            "access": str(access_token),
-            "user": {
-                "email": user.email,
-                "name": user.name,
-                "role": role
-            }
-                })
+            logger.info(f"Login successful for user: {user.email}")
+            return Response({
+                "access": str(access_token),
+                "user": {
+                    "email": user.email,
+                    "name": user.name,
+                    "role": role
+                }
+            })
+        except Exception as e:
+            logger.error(f"Login error: {str(e)}")
+            return Response({"detail": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
